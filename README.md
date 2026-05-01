@@ -7,6 +7,9 @@ The `eval` tool is automatically selected by the agent when it needs to debug
 Python code, explore data, or generate visualizations. Execution always requires
 user confirmation.
 
+> **Inspired by [oh-my-pi](https://github.com/can1357/oh-my-pi)** — the
+> plugin ecosystem for the pi coding agent that this package belongs to.
+
 ## Architecture
 
 **Hybrid Rust + TypeScript:**
