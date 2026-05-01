@@ -17,7 +17,8 @@
 		"build:ts": "tsc",
 		"build:rs": "cargo build --release --manifest-path crates/pi-ipython-cli/Cargo.toml",
 		"check": "bun run build:ts --noEmit",
-		"clean": "rm -rf dist bin/pi-ipython-cli target"
+		"clean": "rm -rf dist bin/pi-ipython-cli target",
+		"postinstall": "bun run build.ts"
 	},
 	"files": [
 		"dist",
