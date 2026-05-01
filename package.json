@@ -1,0 +1,43 @@
+{
+	"name": "@oh-my-pi/pi-ipython",
+	"version": "0.1.0",
+	"private": true,
+	"type": "module",
+	"main": "dist/pi-ipython.js",
+	"types": "dist/pi-ipython.d.ts",
+	"pi": {
+		"extensions": ["dist/pi-ipython.js"],
+		"skills": ["skills/eval/SKILL.md"]
+	},
+	"bin": {
+		"pi-ipython-cli": "bin/pi-ipython-cli"
+	},
+	"scripts": {
+		"build": "bun run build.ts",
+		"build:ts": "tsc",
+		"build:rs": "cargo build --release --manifest-path crates/pi-ipython-cli/Cargo.toml",
+		"check": "bun run build:ts --noEmit",
+		"clean": "rm -rf dist bin/pi-ipython-cli target"
+	},
+	"files": [
+		"dist",
+		"bin",
+		"skills",
+		"python",
+		"package.json",
+		"README.md",
+		"CHANGELOG.md"
+	],
+	"dependencies": {
+		"@oh-my-pi/pi": "^1.0.0"
+	},
+	"devDependencies": {
+		"@types/bun": "latest",
+		"typescript": "^5.7.0"
+	},
+	"optionalDependencies": {
+		"@oh-my-pi/pi-ipython-darwin-arm64": "0.1.0",
+		"@oh-my-pi/pi-ipython-darwin-x64": "0.1.0",
+		"@oh-my-pi/pi-ipython-linux-x64": "0.1.0"
+	}
+}

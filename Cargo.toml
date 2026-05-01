@@ -1,0 +1,6 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/gateway",
+    "crates/pi-ipython-cli",
+]

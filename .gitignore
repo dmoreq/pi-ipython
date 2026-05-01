@@ -1,0 +1,7 @@
+node_modules/
+dist/
+bin/pi-ipython-cli
+target/
+*.log
+.DS_Store
+.pi/artifacts/

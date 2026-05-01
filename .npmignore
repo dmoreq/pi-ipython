@@ -1,0 +1,10 @@
+dist
+bin
+target
+node_modules
+*.ts
+!dist/**/*.d.ts
+!dist/**/*.js
+crates
+build.ts
+tsconfig.json
