@@ -99,9 +99,11 @@ export function resolvePythonRuntime(
 		}
 	}
 
-	// Walk up from cwd looking for .venv
+	// Walk up from cwd looking for .venv (max 20 levels deep)
+	const MAX_VENV_WALK_DEPTH = 20;
 	let dir = cwd;
-	while (dir !== path.dirname(dir)) {
+	let depth = 0;
+	while (dir !== path.dirname(dir) && depth < MAX_VENV_WALK_DEPTH) {
 		const venvDir = path.join(dir, ".venv");
 		if (fs.existsSync(venvDir)) {
 			const pythonPath = path.join(venvDir, "bin", "python3");
@@ -114,6 +116,7 @@ export function resolvePythonRuntime(
 			}
 		}
 		dir = path.dirname(dir);
+		depth++;
 	}
 
 	// Fallback to system python3

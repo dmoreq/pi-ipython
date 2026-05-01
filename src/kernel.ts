@@ -377,6 +377,15 @@ export class PythonKernel {
 					}
 					break;
 				}
+				case "execute_input": {
+					// Log which code is being executed (for progress tracking)
+					if (options?.onChunk) {
+						const execCode = String(response.content.code ?? "").trim();
+						const shortCode = execCode.slice(0, 60).replace(/\n/g, " ");
+						await options.onChunk(`  [executing: ${shortCode}${execCode.length > 60 ? "..." : ""}]\n`);
+					}
+					break;
+				}
 				case "input_request": {
 					if (options?.onChunk) {
 						await options.onChunk(

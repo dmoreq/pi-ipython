@@ -113,7 +113,7 @@ These Python functions are injected into every kernel:
 |--------|-------------|
 | `read(path, offset=1, limit=None)` | Read file contents with line range |
 | `write(path, content)` | Write content to a file |
-| `find(pattern, base_dir=".")` | Glob file search (honors .gitignore) |
+| `find(pattern, base_dir=".")` | Glob file search |
 | `grep(pattern, base_dir=".", max_matches=50)` | Regex file search (uses ripgrep) |
 | `run(cmd, timeout=30)` | Run a shell command |
 | `env(key=None, value=None)` | Get/set environment variables |

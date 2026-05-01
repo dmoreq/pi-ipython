@@ -72,7 +72,7 @@ if "__pi_ipython_prelude_loaded__" not in globals():
         _emit_status("write", path=str(p), bytes=len(content.encode("utf-8")))
 
     def find(pattern: str, base_dir: str | Path = ".", *, gitignore: bool = True):
-        """Find files matching a glob pattern. Honors .gitignore when gitignore=True."""
+        """Find files matching a glob pattern. The gitignore parameter is reserved for future use."""
         base = Path(base_dir)
         matches = [str(p) for p in base.rglob(pattern)]
         _emit_status("find", pattern=pattern, count=len(matches))
@@ -163,13 +163,3 @@ if "__pi_ipython_prelude_loaded__" not in globals():
     def output(value):
         """Explicitly mark a value as the cell's final output."""
         display(value)
-
-    def notebook():
-        """Get the current notebook path (if available)."""
-        try:
-            import ipykernel
-            kernel = ipykernel.get_connection_file()
-            _emit_status("notebook", connection_file=kernel)
-            return kernel
-        except Exception:
-            return None

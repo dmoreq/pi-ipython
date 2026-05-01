@@ -12,18 +12,22 @@
  *
  * Execution requires user confirmation via the `tool_call` interceptor.
  * Matplotlib/seaborn/plotly figures are displayed inline via pi-tui's Image component.
+ *
+ * Parameters use `any` type annotations because the pi host injects dynamic
+ * types. When @oh-my-pi/pi publishes canonical extension types, update these.
  */
-// @ts-nocheck - runs inside pi's module context which provides typebox, ExtensionAPI, etc.
 import { executePython, shutdownAll } from "./executor.js";
 import { parseEvalInput } from "./parse.js";
 import { checkPythonAvailability } from "./runtime.js";
 import { Container, getCapabilities, Image, Text } from "@mariozechner/pi-tui";
 
-const MAX_WIDTH_CELLS = 80;
+const MAX_WIDTH_CELLS = (typeof process !== "undefined" && process.stdout?.columns)
+	? Math.min(process.stdout.columns, 120)
+	: 80;
 
-export default async function (pi) {
+export default async function (pi: any) {
 	// Check Python availability on startup
-	pi.on("session_start", async (_event, ctx) => {
+	pi.on("session_start", async (_event: any, ctx: any) => {
 		const available = await checkPythonAvailability(ctx.cwd);
 		if (!available.ok) {
 			console.warn(`[pi-ipython] ${available.reason}`);
@@ -38,7 +42,7 @@ export default async function (pi) {
 	// Intercept eval tool calls — require user confirmation before execution.
 	// The agent is instructed (via the eval skill) to ask first, but this
 	// interceptor provides a safety net in case the skill instruction is missed.
-	pi.on("tool_call", async (event, ctx) => {
+	pi.on("tool_call", async (event: any, ctx: any) => {
 		if (event.toolName !== "eval") return;
 
 		const input = String(event.input?.input ?? "");
@@ -91,7 +95,7 @@ export default async function (pi) {
 			required: ["input"],
 		},
 
-		async execute(toolCallId, params, signal, onUpdate, ctx) {
+		async execute(toolCallId: any, params: any, signal: any, onUpdate: any, ctx: any) {
 			const input = String(params.input ?? "");
 			const parsed = parseEvalInput(input);
 			const results = [];
@@ -194,56 +198,68 @@ export default async function (pi) {
 			};
 		},
 
-		renderCall(args, theme, context) {
-			const input = String(args.input ?? "");
-			const firstLine = input.split("\n")[0] || "(empty)";
-			return new Text(`eval: ${firstLine}`, 0, 0);
+		renderCall(args: any, theme: any, context: any) {
+			try {
+				const input = String(args.input ?? "");
+				const firstLine = input.split("\n")[0] || "(empty)";
+				return new Text(`eval: ${firstLine}`, 0, 0);
+			} catch {
+				return new Text("eval: (render error)", 0, 0);
+			}
 		},
 
-		renderResult(result, options, theme, context) {
-			const container = new Container("vertical", 0);
-			const cells = result.details?.cells;
-			const images = result.details?.images;
+		renderResult(result: any, options: any, theme: any, context: any) {
+			try {
+				const container = new Container("vertical", 0);
+				const cells = result.details?.cells;
+				const images = result.details?.images;
 
-			// Status lines for each cell
-			if (cells) {
-				for (const cell of cells) {
-					const icon = cell.status === "ok" ? "OK" : "ER";
-					const duration = cell.durationMs ? ` (${cell.durationMs}ms)` : "";
-					const label = cell.title
-						? `  [${icon}] Cell ${cell.index + 1}: ${cell.title}${duration}`
-						: `  [${icon}] Cell ${cell.index + 1}${duration}`;
-					container.addChild(
-						new Text(
-							theme.fg(cell.status === "ok" ? "info" : "error", label),
-							0,
-							0,
-						),
-					);
+				// Status lines for each cell
+				if (cells) {
+					for (const cell of cells) {
+						const icon = cell.status === "ok" ? "OK" : "ER";
+						const duration = cell.durationMs ? ` (${cell.durationMs}ms)` : "";
+						const label = cell.title
+							? `  [${icon}] Cell ${cell.index + 1}: ${cell.title}${duration}`
+							: `  [${icon}] Cell ${cell.index + 1}${duration}`;
+						container.addChild(
+							new Text(
+								theme.fg(cell.status === "ok" ? "info" : "error", label),
+								0,
+								0,
+							),
+						);
+					}
 				}
-			}
 
-			// Inline image display (matplotlib, plotly, seaborn figures)
-			if (
-				getCapabilities().images &&
-				context.showImages &&
-				images &&
-				images.length > 0
-			) {
-				for (const img of images) {
-					const imgLabel = img.cellTitle
-						? `  Figure from Cell ${img.cellIndex + 1}: ${img.cellTitle}`
-						: `  Figure from Cell ${img.cellIndex + 1}`;
-					container.addChild(
-						new Text(theme.fg("muted", imgLabel), 0, 0),
-					);
-					container.addChild(
-						new Image(img.base64, img.mime, {}, { maxWidthCells: MAX_WIDTH_CELLS }),
-					);
+				// Inline image display (matplotlib, plotly, seaborn figures)
+				if (
+					getCapabilities().images &&
+					context.showImages &&
+					images &&
+					images.length > 0
+				) {
+					for (const img of images) {
+						const imgLabel = img.cellTitle
+							? `  Figure from Cell ${img.cellIndex + 1}: ${img.cellTitle}`
+							: `  Figure from Cell ${img.cellIndex + 1}`;
+						container.addChild(
+							new Text(theme.fg("muted", imgLabel), 0, 0),
+						);
+						container.addChild(
+							new Image(img.base64, img.mime, {}, { maxWidthCells: MAX_WIDTH_CELLS }),
+						);
+					}
 				}
-			}
 
-			return container;
+				return container;
+			} catch (err) {
+				return new Text(
+					theme.fg("error", `[pi-ipython] TUI render error: ${err}`),
+					0,
+					0,
+				);
+			}
 		},
 	});
 }
