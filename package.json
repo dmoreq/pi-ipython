@@ -30,6 +30,7 @@
 		"CHANGELOG.md"
 	],
 	"dependencies": {
+		"@types/node": "^25.0.0",
 		"typescript": "^5.7.0"
 	},
 	"devDependencies": {
