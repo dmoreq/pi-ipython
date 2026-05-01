@@ -307,6 +307,7 @@ export class PythonKernel {
 		const finalize = () => {
 			if (resolved) return;
 			resolved = true;
+			if (timeoutId) clearTimeout(timeoutId);
 			this.#messageHandlers.delete(msgId);
 			this.#pendingExecutions.delete(msgId);
 			resolve({ status, executionCount, error: errorResult, cancelled, timedOut });
@@ -388,22 +389,17 @@ export class PythonKernel {
 		});
 
 		// Handle timeout
+		let timeoutId: ReturnType<typeof setTimeout> | undefined;
 		if (options?.timeoutMs && options.timeoutMs > 0) {
-			const timeoutId = setTimeout(() => {
+			timeoutId = setTimeout(() => {
 				timedOut = true;
 				cancelled = true;
 				this.#interruptKernel().catch(() => {});
-				finalize();
+				resolved = true;
+				this.#messageHandlers.delete(msgId);
+				this.#pendingExecutions.delete(msgId);
+				resolve({ status, executionCount, error: errorResult, cancelled, timedOut });
 			}, options.timeoutMs);
-
-			const originalFinalize = finalize;
-			const finalizeWithClear = () => {
-				clearTimeout(timeoutId);
-				originalFinalize();
-			};
-			// Override finalize to clear timeout
-			const tempResolve = resolve;
-			// We can't easily override — use a wrapper
 		}
 
 		// Handle abort signal
