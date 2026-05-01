@@ -10,6 +10,28 @@ user confirmation.
 > **Inspired by [oh-my-pi](https://github.com/can1357/oh-my-pi)** — the
 > plugin ecosystem for the pi coding agent that this package belongs to.
 
+## Quick Start
+
+Install directly from GitHub:
+
+```bash
+# Using pi (requires bun)
+pi pkg add github:dmoreq/pi-ipython
+
+# Or via npm/bun from a GitHub tarball
+bun add github:dmoreq/pi-ipython
+```
+
+Make sure you have the Python dependencies installed:
+
+```bash
+pip install jupyter_kernel_gateway ipykernel
+```
+
+Once installed, pi will automatically load the `eval` tool from this extension.
+The agent will use it whenever it needs to debug Python code, explore data, or
+generate visualizations.
+
 ## Architecture
 
 **Hybrid Rust + TypeScript:**
