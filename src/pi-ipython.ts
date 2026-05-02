@@ -10,7 +10,6 @@
  * - Explore or visualize data (DataFrames, matplotlib, plotly)
  * - Run quick Python computations
  *
- * Execution requires user confirmation via the `tool_call` interceptor.
  * Matplotlib/seaborn/plotly figures are displayed inline via pi-tui's Image component.
  *
  * Parameters use `any` type annotations because the pi host injects dynamic
@@ -39,31 +38,6 @@ export default async function (pi: any) {
 		await shutdownAll();
 	});
 
-	// Intercept eval tool calls — require user confirmation before execution.
-	// The agent is instructed (via the eval skill) to ask first, but this
-	// interceptor provides a safety net in case the skill instruction is missed.
-	pi.on("tool_call", async (event: any, ctx: any) => {
-		if (event.toolName !== "eval") return;
-
-		const input = String(event.input?.input ?? "");
-		// Extract a brief preview for the confirmation prompt
-		const preview = input.trim().slice(0, 120).replace(/\n/g, " ");
-
-		if (!ctx.hasUI) {
-			// Non-interactive mode (print, RPC) — skip confirmation
-			// In RPC mode the client handles its own confirm flow
-			return;
-		}
-
-		const confirmed = await ctx.ui.confirm(
-			"Execute Python code?",
-			`The agent wants to run Python code in an IPython kernel.\n\nPreview: ${preview}${input.length > 120 ? "..." : ""}\n\nAllow execution?`,
-		);
-
-		if (!confirmed) {
-			return { block: true, reason: "User declined Python execution" };
-		}
-	});
 
 	// Register the eval tool
 	pi.registerTool({
@@ -77,8 +51,7 @@ export default async function (pi: any) {
 			"Supports fenced code blocks (```py ... ```) with optional " +
 			"attributes: title=, t= (timeout ms), rst (reset kernel). " +
 			"Provides prelude helpers: read(), write(), find(), grep(), " +
-			"run(), env(), tree(), stat(), diff(), display(). " +
-			"IMPORTANT: Always confirm with the user before executing Python code.",
+			"run(), env(), tree(), stat(), diff(), display().",
 
 		promptSnippet: "Execute Python code cells for debugging, data exploration, or visualization (IPython kernel)",
 

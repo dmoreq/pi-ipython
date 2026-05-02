@@ -1,6 +1,6 @@
 ---
 name: eval
-description: Python Code Execution via IPython kernel — run code cells for debugging, data exploration, and visualization. Auto-selected by the agent when Python execution is needed. Always confirm with the user before running.
+description: Python Code Execution via IPython kernel — run code cells for debugging, data exploration, and visualization.
 ---
 
 # eval — Python Code Execution (IPython Kernel)
@@ -18,31 +18,6 @@ The agent should use `eval` when:
 - **Data visualization** — matplotlib/seaborn/plotly figures, charts, plots
 - **Quick computations** — one-off calculations that benefit from Python's ecosystem
 - **File analysis** — using prelude helpers (read, grep, find, stat) from Python
-
-## Confirmation Required
-
-**The agent MUST always ask the user for confirmation before calling `eval`.**
-Before executing any Python code:
-
-1. Explain what code would be run and what it would do
-2. Use the built-in `ask` tool (kind=confirm) to get user approval
-3. Only call `eval` after the user confirms
-
-Example agent flow:
-
-```
-I'd like to run some Python code to debug the `process_data` function.
-The code would:
-- Load the CSV file
-- Run process_data on it
-- Display the results as a DataFrame
-
-Would you like me to execute this in the IPython kernel?
-[User confirms]
-[eval tool called]
-```
-
-If the user declines, explain alternative approaches or ask if they'd like to modify the plan.
 
 ## Basic Usage
 
@@ -159,10 +134,9 @@ is preserved so you can inspect variables in subsequent cells.
 
 ## Best Practices
 
-1. **Always confirm with the user first** — explain what you'll run and why
-2. **One logical operation per cell** — import in one cell, compute in the next
-3. **Use `title=`** to label cells for readability
-4. **Set `t=` timeout** for long-running computations
-5. **Use `RESET`** when you need a clean state (memory leaks, stale state)
-6. **Prefer prelude helpers** (`read()`/`write()`) over raw file I/O
-7. **Use `display()`** for rich output instead of `print()` for dicts/lists
+1. **One logical operation per cell** — import in one cell, compute in the next
+2. **Use `title=`** to label cells for readability
+3. **Set `t=` timeout** for long-running computations
+4. **Use `RESET`** when you need a clean state (memory leaks, stale state)
+5. **Prefer prelude helpers** (`read()`/`write()`) over raw file I/O
+6. **Use `display()`** for rich output instead of `print()` for dicts/lists
